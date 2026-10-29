@@ -89,7 +89,7 @@ class CourseListView(generic.ListView):
 
 class CourseDetailView(generic.DetailView):
     model = Course
-    template_name = 'onlinecourse/course_detail_bootstrap.html'
+    template_name = 'onlinecourse/course_details_bootstrap.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -127,7 +127,7 @@ def submit(request, course_id):
     submission = Submission.objects.create(enrollment=enrollment)
     choices = Choice.objects.filter(id__in=extract_answers(request), question__course=course)
     submission.choices.set(choices)
-    return HttpResponseRedirect(reverse('onlinecourse:exam_result', args=(course.id, submission.id)))
+    return HttpResponseRedirect(reverse('onlinecourse:show_exam_result', args=(course.id, submission.id)))
 
 
 # An example method to collect the selected choices from the exam form from the request object
@@ -159,7 +159,8 @@ def show_exam_result(request, course_id, submission_id):
     score = sum(question.grade for question in questions if question.is_get_score(selected_ids))
     grade = round(score * 100 / total, 2) if total else 0
     return render(request, 'onlinecourse/exam_result_bootstrap.html',
-                  {'course': course, 'choices': choices, 'grade': grade})
+                  {'course': course, 'choices': choices, 'grade': grade,
+                   'selected_ids': selected_ids, 'possible': total})
 
 
 

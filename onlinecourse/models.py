@@ -97,8 +97,12 @@ class Enrollment(models.Model):
 
 class Question(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    content = models.CharField(max_length=200)
-    grade = models.PositiveIntegerField(default=50)
+    question_text = models.CharField(max_length=200, db_column='content')
+    grade = models.IntegerField(default=50)
+
+    @property
+    def content(self):
+        return self.question_text
 
     def __str__(self):
         return self.content
@@ -111,8 +115,12 @@ class Question(models.Model):
 
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    content = models.CharField(max_length=200)
+    choice_text = models.CharField(max_length=200, db_column='content')
     is_correct = models.BooleanField(default=False)
+
+    @property
+    def content(self):
+        return self.choice_text
 
     def __str__(self):
         return self.content
@@ -121,3 +129,6 @@ class Choice(models.Model):
 class Submission(models.Model):
     enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
     choices = models.ManyToManyField(Choice, blank=True)
+
+    def __str__(self):
+        return f'{self.enrollment.user.username}: {self.enrollment.course.name} (submission {self.pk})'

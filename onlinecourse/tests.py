@@ -10,10 +10,10 @@ class ExamFlowTests(TestCase):
         self.other = User.objects.create_user('other', password='test-only-password')
         self.course = Course.objects.create(name='Learning Django', description='Test course')
         Enrollment.objects.create(user=self.user, course=self.course)
-        self.question = Question.objects.create(course=self.course, content='Select both correct answers', grade=100)
-        self.a = Choice.objects.create(question=self.question, content='A', is_correct=True)
-        self.b = Choice.objects.create(question=self.question, content='B', is_correct=True)
-        self.c = Choice.objects.create(question=self.question, content='C', is_correct=False)
+        self.question = Question.objects.create(course=self.course, question_text='Select both correct answers', grade=100)
+        self.a = Choice.objects.create(question=self.question, choice_text='A', is_correct=True)
+        self.b = Choice.objects.create(question=self.question, choice_text='B', is_correct=True)
+        self.c = Choice.objects.create(question=self.question, choice_text='C', is_correct=False)
         self.client.force_login(self.user)
 
     def submit(self, choices):
@@ -40,7 +40,7 @@ class ExamFlowTests(TestCase):
         submission = Submission.objects.get()
         self.client.force_login(self.other)
         self.assertEqual(self.submit([self.a]).status_code, 404)
-        self.assertEqual(self.client.get(reverse('onlinecourse:exam_result', args=[self.course.id, submission.id])).status_code, 404)
+        self.assertEqual(self.client.get(reverse('onlinecourse:show_exam_result', args=[self.course.id, submission.id])).status_code, 404)
 
     def test_get_does_not_create_submission(self):
         self.assertEqual(self.client.get(reverse('onlinecourse:submit', args=[self.course.id])).status_code, 405)
